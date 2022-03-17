@@ -1,39 +1,35 @@
-import time, sys
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+from flask import Flask, request
+from flask_restful import Resource, Api, reqparse, abort
 
 import json
 
 import requests
 
-class EventHandler(FileSystemEventHandler):
-    print("Handler Called")
-    def on_modified(self, event):
-        print(f'event type: {event.event_type}  path : {event.src_path}')
-        with open('payload.json', 'r') as f:
-            lines = f.readlines()
-            print(json.dumps(lines, indent=4))
-            response = requests.post(
-                '{yourWebhookURL}',
-                data = json.dumps(lines, indent=4),
-                headers= {
-                    'Accept':'application/json',
-                    'Cache-Control':'no-cache'
-                    }
-                )
-            print(response)
+import uuid
 
-src_path = sys.argv[1] if len(sys.argv) > 1 else '.'
+app = Flask(__name__)
+api = Api(app)
 
-event_handler=EventHandler()
-observer = Observer()
-observer.schedule(event_handler, path=src_path, recursive=True)
-print("Monitoring started")
-observer.start()
-try:
-    while(True):
-        print('timer', flush=True)
-        time.sleep(10 )
-except KeyboardInterrupt:
-    observer.stop()
-observer.join()
+class Event(Resource):
+    def post(self):
+        app.logger.debug('headers: %s' , request.headers)
+        print("Request received")
+        token = requests.post('https://identity.fortellis.io/oauth2/aus1p1ixy7YL8cMq02p7', data = {'grant_type': 'client_credentials', 'scope': 'anonymous'}, headers= {'Authorization':'Basic base64Encoded{yourAPIKey:yourAPISecret}', 'Accept':'application/json', 'Cache-Control':'no-cache' })
+        print((token.json()['access_token']), flush=True)
+
+        requestId = str(uuid.uuid4())
+        print(requestId)
+
+        event = requests.post('https://event-relay.fortellis.io/v2/events', json = {"id":"6620800b-7029-4a7a-8e80-cdd852fc01c8", "number": 16,"haveYouSaidHello": True, "waysToSayHello": ["Hello", "Hola", "Hallo", "Bonjour", "Guttendag", "Ola"],"helloID": { "language": "English", "id": "b2f7494a-5dcf-448c-9585-5301fc0dd231"}}, headers = {'Accept':'application/json', 'Content-Type': 'application/json', 'Data-Owner-Id': '{yourOrganizationId}', 'X-Request-Id': requestId,'Authorization': 'Bearer ' + token.json()['access_token']})
+        print(event.json(), flush=True)
+
+        return(event.json())
+
+api.add_resource(Event, '/event')
+
+if __name__ == '__main__':
+    app.run(debug=True) 
+
+
+
+
