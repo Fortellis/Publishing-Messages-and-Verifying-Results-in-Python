@@ -21,7 +21,7 @@ class Event(Resource):
         requestId = str(uuid.uuid4())
         print(requestId)
 
-        event = requests.post('https://event-relay.fortellis.io/v2/events', json = {"id":"6620800b-7029-4a7a-8e80-cdd852fc01c8", "number": 16,"haveYouSaidHello": True, "waysToSayHello": ["Hello", "Hola", "Hallo", "Bonjour", "Guttendag", "Ola"],"helloID": { "language": "English", "id": "{subscribingOrganizationId}"}}, headers = {'Accept':'application/json', 'Content-Type': 'application/json', 'Data-Owner-Id': 'b74c3f9a-17ee-4943-81f2-ae22bb4f260d', 'X-Request-Id': requestId,'Authorization': 'Bearer ' + token.json()['access_token'], 'partitionKey': '{aUniqueUUIDForYourPartition}'})
+        event = requests.post('https://event-relay.fortellis.io/v2/events/{youChannel}', json = {"id":"6620800b-7029-4a7a-8e80-cdd852fc01c8", "number": 16,"haveYouSaidHello": True, "waysToSayHello": ["Hello", "Hola", "Hallo", "Bonjour", "Guttendag", "Ola"],"helloID": { "language": "English", "id": "{subscribingOrganizationId}"}}, headers = {'Accept':'application/json', 'Content-Type': 'application/json', 'Data-Owner-Id': 'b74c3f9a-17ee-4943-81f2-ae22bb4f260d', 'X-Request-Id': requestId,'Authorization': 'Bearer ' + token.json()['access_token'], 'partitionKey': '{aUniqueUUIDForYourPartition}'})
         print(event.json(), flush=True)
 
         return(event.json())
