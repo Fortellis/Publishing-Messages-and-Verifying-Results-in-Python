@@ -15,7 +15,7 @@ class Event(Resource):
     def post(self):
         app.logger.debug('headers: %s' , request.headers)
         print("Request received")
-        token = requests.post('https://identity.fortellis.io/oauth2/aus1p1ixy7YL8cMq02p7/v1/token', data = {'grant_type': 'client_credentials', 'scope': 'anonymous'}, headers= {'Authorization':'base64Encoded{yourClientID:yourClientSecret}', 'Accept':'application/json', 'Cache-Control':'no-cache' })
+        token = requests.post('https://identity.fortellis.io/oauth2/aus1p1ixy7YL8cMq02p7/v1/token', data = {'grant_type': 'client_credentials', 'scope': 'anonymous'}, headers= {'Authorization':'Basic base64Encoded{yourClientID:yourClientSecret}', 'Accept':'application/json', 'Cache-Control':'no-cache' })
         print((token.json()['access_token']), flush=True)
 
         requestId = str(uuid.uuid4())
